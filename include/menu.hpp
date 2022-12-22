@@ -7,6 +7,7 @@ Class for the menu
 #include <stdio.h>
 #include <iostream/iostream.h>
 #include <TFT_eSPI.h>
+#include "fonts.hpp"
 
 #define NAME_CHARS 20
 
@@ -45,7 +46,6 @@ public:
     char *_name;
 
     TFT_eSPI *_tft;
-    int _baudrate;
     Page * actual_page, * running_page;
     uint8 page_idx;
     Page ** pages_list;
@@ -55,7 +55,6 @@ public:
         _name = (char *)malloc(20 * sizeof(char));
         sprintf(_name, name);
         _tft = new TFT_eSPI();
-        _baudrate = -1;
 
         page_idx = 0;
         actual_page = running_page = nullptr;
@@ -76,13 +75,12 @@ public:
         }
     }
 
-    void setup(int baudrate)
+    void setup()
     {
         // Setup the TFT display
         // Setup baud rate and draw top banner
-        _baudrate = baudrate;
-        Serial.begin(baudrate);
         _tft->init();
+        _tft->setFreeFont(FF18);
         _tft->setRotation(0); // Must be setRotation(0) for this sketch to work correctly
         _tft->fillScreen(TFT_BLUE);
     }
