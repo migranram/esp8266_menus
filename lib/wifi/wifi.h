@@ -4,4 +4,4 @@ void wifi_setup();
 
 void wifi_disconnect();
 
-String wifi_scan();
+String wifi_scan(bool async);

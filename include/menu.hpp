@@ -17,6 +17,7 @@ Class for the menu
 #define TOP_FIXED_AREA 16 // Number of lines in top fixed area (lines counted from top of screen)
 #define YMAX 320          // Bottom of screen area
 #define MAX_PAGES 10
+#define MAIN_COLOR TFT_RED
 
 class Page
 {
@@ -48,7 +49,8 @@ public:
     TFT_eSPI *_tft;
     Page * actual_page, * running_page;
     uint8 page_idx;
-    Page ** pages_list;
+    std::vector<Page *> pages_list;
+
 
     Menu(char *name)
     {
@@ -58,20 +60,22 @@ public:
 
         page_idx = 0;
         actual_page = running_page = nullptr;
-        pages_list = (Page **) malloc(MAX_PAGES * sizeof(Page *));
-        for (int i = 0; i < MAX_PAGES; i++)
-        {
-            pages_list[i] = nullptr;
-        }
+
+        pages_list.push_back(nullptr);
+
     }
 
     void addPage(Page *page)
     {
-        if (page != nullptr)
+        if (page != nullptr && pages_list.size() < MAX_PAGES)
         {
-            pages_list[page_idx] = page;
-            page_idx++;
-            actual_page = page;
+            pages_list.push_back(page);
+
+            if(actual_page == nullptr)
+            {
+                actual_page = page;
+                page_idx = 1;
+            }
         }
     }
 
@@ -82,7 +86,7 @@ public:
         _tft->init();
         _tft->setFreeFont(FF18);
         _tft->setRotation(0); // Must be setRotation(0) for this sketch to work correctly
-        _tft->fillScreen(TFT_BLUE);
+        _tft->fillScreen(MAIN_COLOR);
     }
 
     void display()
@@ -98,6 +102,24 @@ public:
             actual_page->display();
         }
             
+    }
+
+    void nextPage()
+    {
+        page_idx++;
+        if(page_idx == pages_list.size())
+            page_idx = 1;
+
+        actual_page = pages_list[page_idx];
+    }
+    void previousPage()
+    {
+        if(page_idx == 1)
+            page_idx = pages_list.size() - 1;
+        else
+            page_idx--;
+        
+        actual_page = pages_list[page_idx];
     }
 
 private:

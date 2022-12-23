@@ -26,7 +26,7 @@ public:
     // We can speed up scrolling of short text lines by just blanking the character we drew
     int blank[19]; // We keep all the strings pixel lengths to optimise the speed of the top line blanking
 
-    String content;
+    String content, last_content;
 
     using Page::Page;
 
@@ -62,8 +62,8 @@ public:
 
         _tft->fillScreen(TFT_BLACK);
 
-        _tft->setTextColor(TFT_WHITE, TFT_BLUE);
-        _tft->fillRect(0, 0, 240, 16, TFT_BLUE);
+        _tft->setTextColor(TFT_WHITE, MAIN_COLOR);
+        _tft->fillRect(0, 0, 240, 16, MAIN_COLOR);
 
         // char *string;
         // string = (char *)malloc(50*sizeof(char));
@@ -79,6 +79,15 @@ public:
             blank[i] = 0;
 
         draw_text();
+    }
+
+    void display()
+    {
+        if(content != last_content)
+        {
+            last_content = content;
+            this->setup();
+        }
     }
 
 private:
@@ -152,8 +161,8 @@ public:
 
         _tft->fillScreen(TFT_BLACK);
 
-        _tft->setTextColor(TFT_WHITE, TFT_BLUE);
-        _tft->fillRect(0, 0, 240, 16, TFT_BLUE);
+        _tft->setTextColor(TFT_WHITE, MAIN_COLOR);
+        _tft->fillRect(0, 0, 240, 16, MAIN_COLOR);
 
         // char *string;
         // string = (char *)malloc(50*sizeof(char));

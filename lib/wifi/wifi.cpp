@@ -1,6 +1,6 @@
 #include "wifi.h"
 
-//#define PRINT_MAC_ADDR
+// #define PRINT_MAC_ADDR
 
 void wifi_setup()
 {
@@ -13,7 +13,7 @@ void wifi_disconnect()
     WiFi.disconnect();
 }
 
-String wifi_scan()
+String wifi_scan(bool async)
 {
     String ssid;
     int32_t rssi;
@@ -21,12 +21,12 @@ String wifi_scan()
     uint8_t *bssid;
     int32_t channel;
     bool hidden;
-    int scanResult;
+    int scanResult = 0;
 
     char temp[200];
     auto output = String("");
 
-    scanResult = WiFi.scanNetworks(/*async=*/false, /*hidden=*/true);
+    scanResult = WiFi.scanNetworks(/*async=*/async, /*hidden=*/true);
 
     if (scanResult == 0)
     {
@@ -52,36 +52,42 @@ String wifi_scan()
                           hidden ? 'H' : 'V',
                           ssid.c_str());
 
-            #ifdef PRINT_MAC_ADDR
-            sprintf(temp , PSTR("++%02d: [CH %02d] [%02X:%02X:%02X:%02X:%02X:%02X] %ddBm %c %c %s\n"),
-                          i,
-                          channel,
-                          bssid[0], bssid[1], bssid[2],
-                          bssid[3], bssid[4], bssid[5],
-                          rssi,
-                          (encryptionType == ENC_TYPE_NONE) ? ' ' : '*',
-                          hidden ? 'H' : 'V',
-                          ssid.c_str());
-            #else
+#ifdef PRINT_MAC_ADDR
+            sprintf(temp, PSTR("++%02d: [CH %02d] [%02X:%02X:%02X:%02X:%02X:%02X] %ddBm %c %c %s\n"),
+                    i,
+                    channel,
+                    bssid[0], bssid[1], bssid[2],
+                    bssid[3], bssid[4], bssid[5],
+                    rssi,
+                    (encryptionType == ENC_TYPE_NONE) ? ' ' : '*',
+                    hidden ? 'H' : 'V',
+                    ssid.c_str());
+#else
 
-            sprintf(temp , PSTR("++%02d: [CH %02d] %ddBm %c %c %s\n"),
-                          i,
-                          channel,
-                          rssi,
-                          (encryptionType == ENC_TYPE_NONE) ? ' ' : '*',
-                          hidden ? 'H' : 'V',
-                          ssid.c_str());
+            sprintf(temp, PSTR("++%02d: %ddBm %c %c %s\n"),
+                    i,
+                    //  channel,
+                    rssi,
+                    (encryptionType == ENC_TYPE_NONE) ? ' ' : '*',
+                    hidden ? 'H' : 'V',
+                    ssid.c_str());
 
-            #endif
+#endif
             output.concat(temp);
             output.concat("\r");
             delay(0);
         }
     }
+    else if (async && scanResult == -1)
+    {
+        sprintf(temp, "Scanning...");
+        output.concat(temp);
+    }
     else
     {
         Serial.printf(PSTR("WiFi scan error %d"), scanResult);
         sprintf(temp, PSTR("WiFi scan error %d"), scanResult);
+        output.concat(temp);
     }
 
     return output;
