@@ -18,20 +18,17 @@ Class for the menu
 #define YMAX 320          // Bottom of screen area
 #define MAX_PAGES 10
 #define MAIN_COLOR TFT_RED
+#define SEC_COLOR TFT_BLUE
 
-class Page
+class AbstractPage
 {
 public:
     char *_name;
     TFT_eSPI *_tft;
+    uint8_t page_index;
 
-    Page(const char *name, TFT_eSPI *screen)
-    {
-        _name = (char *)malloc(20 * sizeof(char));
-        sprintf(_name, name);
-        _tft = screen;
-    }
-
+    virtual void setParent(void *) {}
+    virtual void setIndex(uint8_t id) {}
     virtual void setup()
     {
     }
@@ -47,14 +44,13 @@ public:
     char *_name;
 
     TFT_eSPI *_tft;
-    Page * actual_page, * running_page;
+    AbstractPage *actual_page, *running_page;
     uint8 page_idx;
-    std::vector<Page *> pages_list;
-
+    std::vector<AbstractPage *> pages_list;
 
     Menu(char *name);
 
-    void addPage(Page *page);
+    uint8_t addPage(AbstractPage *page);
 
     void setup();
 
@@ -62,8 +58,31 @@ public:
 
     void nextPage();
     void previousPage();
+    void gotoPage(uint8 id);
 
 private:
+};
+
+class Page : public AbstractPage
+{
+public:
+    Page(const char *name, TFT_eSPI *screen)
+    {
+        _name = (char *)malloc(20 * sizeof(char));
+        sprintf(_name, name);
+        _tft = screen;
+    }
+
+    Menu *parent_menu;
+
+    void setParent(void *menu)
+    {
+        parent_menu = (Menu *)menu;
+    }
+    void setIndex(uint8_t id)
+    {
+        page_index = id;
+    }
 };
 
 #endif

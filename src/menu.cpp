@@ -13,18 +13,24 @@ Menu::Menu(char *name)
     pages_list.push_back(nullptr);
 }
 
-void Menu::addPage(Page *page)
+uint8_t Menu::addPage(AbstractPage *page)
 {
     if (page != nullptr && pages_list.size() < MAX_PAGES)
     {
         pages_list.push_back(page);
+        pages_list[pages_list.size() - 1]->setParent((Menu *)this);
+        pages_list[pages_list.size() - 1]->setIndex(pages_list.size() - 1);
 
         if (actual_page == nullptr)
         {
             actual_page = page;
             page_idx = 1;
         }
+
+        return pages_list.size() - 1;
     }
+    else
+        return 0;
 }
 
 void Menu::setup()
@@ -32,7 +38,7 @@ void Menu::setup()
     // Setup the TFT display
     // Setup baud rate and draw top banner
     _tft->init();
-    _tft->setFreeFont(FF18);
+    _tft->setFreeFont(NULL);
     _tft->setRotation(0); // Must be setRotation(0) for this sketch to work correctly
     _tft->fillScreen(MAIN_COLOR);
 }
@@ -67,4 +73,15 @@ void Menu::previousPage()
         page_idx--;
 
     actual_page = pages_list[page_idx];
+}
+
+void Menu::gotoPage(uint8 id)
+{
+    if (id > 0 && id < pages_list.size())
+    {
+        page_idx = id;
+        Serial.println("IN");
+        actual_page = pages_list[page_idx];
+        Serial.println("OUT");
+    }
 }
