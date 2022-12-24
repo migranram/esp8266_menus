@@ -11,3 +11,9 @@ enum button_state{
     UP_FLANK    = 1,
     DOWN_FLANK = 2
 };
+
+struct button{
+    uint8_t pin;
+    uint8_t state;
+    uint8_t index;
+};

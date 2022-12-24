@@ -27,6 +27,7 @@
 #include "pages.hpp"
 #include "gpio.h"
 #include <iostream/iostream.h>
+#include "tasks.hpp"
 
 #define MENU_NAME (char *)"test"
 #define USB_BAUDRATE 9600
@@ -48,14 +49,11 @@ std::vector<uint8> buttons_state;
 unsigned long actual_millis;
 unsigned long last_millis;
 
-
 void setup()
 {
   // GPIO
   gpio_handler = new GPIO_handler(registered_input_pins,registered_output_pins);
   gpio_handler->setup();
-
-  actual_millis = last_millis = millis();
 
   // Serial
   Serial.begin(USB_BAUDRATE);
@@ -71,30 +69,30 @@ void setup()
   myMenu->addPage(p1);
   myMenu->addPage(p2);
   myMenu->setup();
+
+
+  // Additional
+  actual_millis = last_millis = millis();
+
+  // Tasks
+  display_task.setMenu(myMenu);
+  Scheduler.start(&display_task);
+  Scheduler.start(&wifiscan_task);
+
+  gpioscan_task.setHandler(gpio_handler);
+  Scheduler.start(&gpioscan_task);
+
+  Scheduler.begin();
 }
 
 void loop(void)
 {
   // Check IO
-  bool scan_wifi = false;
-  actual_millis = millis();
-  // if(actual_millis - last_millis > 15000)
-  // {
-  //   p2->setContent(String("Scanning..."));
-  //   scan_wifi = true;
-  //   last_millis = millis();
-  // }
-
-  gpio_handler->getState();
   if (gpio_handler->state[0] == button_state::UP_FLANK){
     myMenu->nextPage();
     Serial.printf("PP: %d", myMenu->page_idx);
   }
-  myMenu->display();
 
-  // if(scan_wifi)
-  // {
-  //   auto wifi_nets = wifi_scan(false);
-  //   p2->setContent(wifi_nets);
-  // }
+  // Update wifi list
+  p2->setContent(wifiscan_task.getScan());
 }
