@@ -63,8 +63,8 @@ void setup()
   auto wifi_nets = wifi_scan(false);
   myMenu = new Menu(MENU_NAME);
 
-  p1 = new SerialPage("Serial watcher", myMenu->_tft);
-  p2 = new TitledContentPage("WiFi Networks", myMenu->_tft);
+  p1 = new SerialPage((char *)"Serial watcher", myMenu->_tft);
+  p2 = new TitledContentPage((char *)"WiFi Networks", myMenu->_tft);
   p2->setContent(wifi_nets);
 
   myMenu->addPage(p1);

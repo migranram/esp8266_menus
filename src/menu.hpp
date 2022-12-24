@@ -25,7 +25,7 @@ public:
     char *_name;
     TFT_eSPI *_tft;
 
-    Page(char *name, TFT_eSPI *screen)
+    Page(const char *name, TFT_eSPI *screen)
     {
         _name = (char *)malloc(20 * sizeof(char));
         sprintf(_name, name);

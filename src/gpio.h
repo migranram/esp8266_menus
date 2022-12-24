@@ -7,7 +7,6 @@ GPIP functions
 #define GPIO_H
 #include <stdio.h>
 #include <iostream/iostream.h>
-#include "definitions.hpp"
 
 enum input_device_state
 {
