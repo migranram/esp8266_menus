@@ -6,54 +6,38 @@ GPIP functions
 
 #include "gpio.h"
 
-GPIO_handler::GPIO_handler(std::vector<uint8> in_pins, std::vector<uint8> out_pins) : input_pins(in_pins), output_pins(out_pins)
+GPIO_handler::GPIO_handler()
 {
 }
 
-std::vector<uint8> GPIO_handler::setup()
+void GPIO_handler::addInput(uint8_t pin)
 {
-    for (std::vector<uint8>::iterator it = input_pins.begin();
-         it != input_pins.end();
-         it++)
-    {
-        pinMode(*it, INPUT_PULLUP);
-        new_value.push_back(0);
-        old_value.push_back(0);
-        state.push_back(button_state::REST);
-    }
-    for (std::vector<uint8>::iterator it = output_pins.begin();
-         it != output_pins.end();
-         it++)
-    {
-        pinMode(*it, OUTPUT);
-    }
+    input_devices.push_back(Input_Device(pin));
+    
+}
 
-    return new_value;
+void GPIO_handler::setup()
+{
+    for (std::vector<Input_Device>::iterator it = input_devices.begin();
+         it != input_devices.end();
+         it++)
+    {
+        pinMode(it->pin, INPUT_PULLUP);
+        it->state = input_device_state::REST;
+    }
 }
 
 void GPIO_handler::checkButtons()
 {
-    for (int i = 0; i < input_pins.size(); i++)
+    for (int i = 0; i < input_devices.size(); i++)
     {
-        new_value[i] = digitalRead(input_pins[i]);
+        input_devices[i].checkState();
     }
 }
 
-void GPIO_handler::getState()
+input_device_state GPIO_handler::getInputState(uint8_t pin)
 {
-    this->checkButtons();
-    for (int i = 0; i < new_value.size(); i++)
-    {
-        if(new_value[i] == old_value[i])
-            state[i] = button_state::REST;
-        else if(new_value[i] != old_value[i])
-        {
-            if(new_value[0])
-                state[i] = button_state::DOWN_FLANK;
-            else
-                state[i] = button_state::UP_FLANK;
-        }
-
-        old_value[i] = new_value[i];
-    }
+    int i;
+    for (i = 0; i < input_devices.size() && input_devices[i].pin != pin; i++);
+    return input_devices[i].state;
 }

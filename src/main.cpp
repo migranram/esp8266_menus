@@ -44,7 +44,6 @@ TitledContentPage *p2;
 GPIO_handler * gpio_handler;
 std::vector<uint8> registered_input_pins = {PIN_D4};
 std::vector<uint8> registered_output_pins = {};
-std::vector<uint8> buttons_state;
 
 unsigned long actual_millis;
 unsigned long last_millis;
@@ -52,7 +51,9 @@ unsigned long last_millis;
 void setup()
 {
   // GPIO
-  gpio_handler = new GPIO_handler(registered_input_pins,registered_output_pins);
+  gpio_handler = new GPIO_handler();
+  gpio_handler->addInput(PIN_D4);
+
   gpio_handler->setup();
 
   // Serial
@@ -88,7 +89,7 @@ void setup()
 void loop(void)
 {
   // Check IO
-  if (gpio_handler->state[0] == button_state::UP_FLANK){
+  if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK){
     myMenu->nextPage();
     Serial.printf("PP: %d", myMenu->page_idx);
   }

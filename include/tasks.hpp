@@ -75,7 +75,7 @@ public:
     void loop()
     {
         
-        handler->getState();
+        handler->checkButtons();
         delay(50);
     }
 } gpioscan_task;
