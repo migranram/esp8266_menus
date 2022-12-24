@@ -131,8 +131,8 @@ class WifiPage : public TitledContentPage
     using TitledContentPage::TitledContentPage;
     void setup()
     {
-        TitledContentPage::setup();
         setContent(wifi_scan(false));
+        TitledContentPage::setup();
     }
 };
 

@@ -63,6 +63,17 @@ void main_loop()
       p3->executeOption();
     }
   }
+  else if (myMenu->page_idx == p2->page_index)
+  {
+    if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
+    {
+      p3->setup();
+    }
+    if (gpio_handler->getInputState(PIN_D2) == input_device_state::UP_FLANK)
+    {
+      myMenu->nextPage();
+    }
+  }
   else
   {
     if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
