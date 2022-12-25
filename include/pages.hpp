@@ -28,7 +28,7 @@ public:
 
     String content, last_content;
 
-    using Page::Page;
+    TitledContentPage(const char *name, TFT_eSPI *screen) : Page(name, screen){}
 
     void setContent(String cont)
     {
@@ -78,12 +78,15 @@ public:
         for (byte i = 0; i < 18; i++)
             blank[i] = 0;
 
+        xPos = 0;
+        yDraw = YMAX - BOT_FIXED_AREA - TEXT_HEIGHT;
+
         draw_text();
     }
 
     void display()
     {
-        if(content != last_content)
+        if (content != last_content)
         {
             last_content = content;
             this->setup();
@@ -123,6 +126,16 @@ private:
         _tft->writecommand(ILI9341_VSCRSADD); // Vertical scrolling pointer
         _tft->writedata(vsp >> 8);
         _tft->writedata(vsp);
+    }
+};
+
+class WifiPage : public TitledContentPage
+{
+    using TitledContentPage::TitledContentPage;
+    void setup()
+    {
+        setContent(wifi_scan(false));
+        TitledContentPage::setup();
     }
 };
 
@@ -176,6 +189,9 @@ public:
         // Zero the array
         for (byte i = 0; i < 18; i++)
             blank[i] = 0;
+
+        xPos = 0;
+        yDraw = YMAX - BOT_FIXED_AREA - TEXT_HEIGHT;
     }
 
     void display()
@@ -231,5 +247,94 @@ private:
         _tft->writecommand(ILI9341_VSCRSADD); // Vertical scrolling pointer
         _tft->writedata(vsp >> 8);
         _tft->writedata(vsp);
+    }
+};
+
+class Widget
+{
+public:
+    const Page *parent_page;
+    Menu *menu;
+    bool selected = false;
+
+    Widget(Page *fp, Menu *m) {
+        parent_page = fp;
+        menu = m;
+    }
+
+    virtual void onClick()
+    {
+    }
+
+    virtual void display() {}
+};
+
+class Shortcut_widget : public Widget
+{
+    public:
+    const uint8_t page_idx;
+    Shortcut_widget(Page *fp, Menu *m, const uint8_t id) : Widget::Widget(fp, m), page_idx(id) {}
+    void display(int posx, int posy, int width, int height, int color)
+    {
+        menu->_tft->drawRoundRect(posx, posy, width, height, 3, color);
+        menu->_tft->setTextColor(TFT_WHITE, color);
+        menu->_tft->drawCentreString(String(menu->pages_list[page_idx]->_name), posx + width/2, posy - menu->_tft->fontHeight(2) / 2 + height / 2, 2);
+
+    }
+    void onClick()
+    {
+        this->menu->gotoPage(page_idx);
+    }
+};
+
+class PageChooser : public TitledContentPage
+{
+
+private:
+    int selected_option = 0;
+    std::vector<Shortcut_widget *> widget_list;
+    Shortcut_widget * new_widget;
+
+public:
+    PageChooser(const char *name, TFT_eSPI *screen) : TitledContentPage(name, screen){}
+    void addOption(uint8_t id)
+    {
+        new_widget = new Shortcut_widget(this, parent_menu, id);
+        widget_list.push_back(new_widget);
+    }
+    void selectOption(int id)
+    {
+        if (id >= 0 && id < widget_list.size())
+            selected_option = id;
+            Serial.printf("Selected option: %d\n",widget_list[selected_option]->page_idx);
+    }
+    void nextOption()
+    {
+        if (selected_option + 1 < widget_list.size())
+            selectOption(selected_option + 1);
+        else
+            selectOption(0);
+    }
+    void previousOption()
+    {
+        if (selected_option - 1 >= 0)
+            selectOption(selected_option - 1);
+        else
+            selectOption(widget_list.size() - 1);
+    }
+
+    void executeOption()
+    {
+        widget_list[selected_option]->onClick();
+    }
+
+    void display()
+    {
+        for (int i = 0; i < widget_list.size(); ++i)
+        {
+            int color = i == selected_option ? SEC_COLOR : MAIN_COLOR;
+            widget_list[i]->display(20, 80+30*i, 200, 25, color);
+            
+        }
     }
 };

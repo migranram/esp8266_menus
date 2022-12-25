@@ -29,7 +29,7 @@ void GPIO_handler::setup()
 
 void GPIO_handler::checkButtons()
 {
-    for (int i = 0; i < input_devices.size(); i++)
+    for (unsigned int i = 0; i < input_devices.size(); i++)
     {
         input_devices[i].checkState();
     }
@@ -37,7 +37,7 @@ void GPIO_handler::checkButtons()
 
 input_device_state GPIO_handler::getInputState(uint8_t pin)
 {
-    int i;
+    unsigned int i;
     for (i = 0; i < input_devices.size() && input_devices[i].pin != pin; i++);
     return input_devices[i].state;
 }

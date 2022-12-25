@@ -40,19 +40,74 @@ EXAMPLE: CREATES A MENU AND ADDS A PAGE IMPLEMENTING A SERIAL WATCHER.
 Menu *myMenu;
 SerialPage *p1;
 TitledContentPage *p2;
+PageChooser *p3;
 
-GPIO_handler * gpio_handler;
-std::vector<uint8> registered_input_pins = {PIN_D4};
-std::vector<uint8> registered_output_pins = {};
+GPIO_handler *gpio_handler;
 
 unsigned long actual_millis;
 unsigned long last_millis;
+
+
+void main_loop()
+{
+
+    // Check IO
+  if (myMenu->page_idx == p3->page_index)
+  {
+    if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
+    {
+      p3->nextOption();
+    }
+    if (gpio_handler->getInputState(PIN_D2) == input_device_state::UP_FLANK)
+    {
+      p3->executeOption();
+    }
+  }
+  else if (myMenu->page_idx == p2->page_index)
+  {
+    if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
+    {
+      p3->setup();
+    }
+    if (gpio_handler->getInputState(PIN_D2) == input_device_state::UP_FLANK)
+    {
+      myMenu->nextPage();
+    }
+  }
+  else
+  {
+    if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
+    {
+      myMenu->previousPage();
+    }
+    if (gpio_handler->getInputState(PIN_D2) == input_device_state::UP_FLANK)
+    {
+      myMenu->nextPage();
+    }
+  }
+
+  // Update wifi list
+  p2->setContent(wifiscan_task.getScan());
+
+}
+
+class MainTask : public LeanTask
+{
+
+public:
+    void loop()
+    {
+        main_loop();
+        delay(50);
+    }
+} main_task;
 
 void setup()
 {
   // GPIO
   gpio_handler = new GPIO_handler();
   gpio_handler->addInput(PIN_D4);
+  gpio_handler->addInput(PIN_D2);
 
   gpio_handler->setup();
 
@@ -60,17 +115,21 @@ void setup()
   Serial.begin(USB_BAUDRATE);
 
   // Wifi and menu set-up
-  auto wifi_nets = wifi_scan(false);
   myMenu = new Menu(MENU_NAME);
-
-  p1 = new SerialPage((char *)"Serial watcher", myMenu->_tft);
-  p2 = new TitledContentPage((char *)"WiFi Networks", myMenu->_tft);
-  p2->setContent(wifi_nets);
-
-  myMenu->addPage(p1);
-  myMenu->addPage(p2);
   myMenu->setup();
 
+  p1 = new SerialPage((char *)"Serial watcher", myMenu->_tft);
+  p2 = new WifiPage((char *)"WiFi Networks", myMenu->_tft);
+  p3 = new PageChooser((char *)"Main Menu", myMenu->_tft);
+
+  int i1 = myMenu->addPage(p1);
+  int i2 = myMenu->addPage(p2);
+  int i3 = myMenu->addPage(p3);
+
+
+  p3->addOption(i1);
+  p3->addOption(i2);
+  p3->addOption(i3);
 
   // Additional
   actual_millis = last_millis = millis();
@@ -78,22 +137,13 @@ void setup()
   // Tasks
   display_task.setMenu(myMenu);
   Scheduler.start(&display_task);
-  Scheduler.start(&wifiscan_task);
+  //Scheduler.start(&wifiscan_task);
 
   gpioscan_task.setHandler(gpio_handler);
   Scheduler.start(&gpioscan_task);
+  Scheduler.start(&main_task);
 
   Scheduler.begin();
 }
 
-void loop(void)
-{
-  // Check IO
-  if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK){
-    myMenu->nextPage();
-    Serial.printf("PP: %d", myMenu->page_idx);
-  }
-
-  // Update wifi list
-  p2->setContent(wifiscan_task.getScan());
-}
+void loop(){}
