@@ -67,22 +67,22 @@ void main_loop()
   {
     if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
     {
-      p2->setup();
+      myMenu->gotoPage(p3->page_index);
     }
     if (gpio_handler->getInputState(PIN_D2) == input_device_state::UP_FLANK)
     {
-      myMenu->nextPage();
+      p2->setup();
     }
   }
   else
   {
     if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
     {
-      myMenu->previousPage();
+      myMenu->gotoPage(p3->page_index);
     }
     if (gpio_handler->getInputState(PIN_D2) == input_device_state::UP_FLANK)
     {
-      myMenu->nextPage();
+      myMenu->gotoPage(p3->page_index);
     }
   }
 
