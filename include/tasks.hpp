@@ -4,6 +4,9 @@ TASKS DEFINITIONS
 
 */
 
+#ifndef TASKS_H
+#define TASKS_H
+
 #include <Scheduler.h>
 #include <Task.h>
 #include <LeanTask.h>
@@ -79,3 +82,5 @@ public:
         delay(50);
     }
 } gpioscan_task;
+
+#endif

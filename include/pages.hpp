@@ -78,6 +78,9 @@ public:
         for (byte i = 0; i < 18; i++)
             blank[i] = 0;
 
+        xPos = 0;
+        yDraw = YMAX - BOT_FIXED_AREA - TEXT_HEIGHT;
+
         draw_text();
     }
 
@@ -186,6 +189,9 @@ public:
         // Zero the array
         for (byte i = 0; i < 18; i++)
             blank[i] = 0;
+
+        xPos = 0;
+        yDraw = YMAX - BOT_FIXED_AREA - TEXT_HEIGHT;
     }
 
     void display()
