@@ -67,7 +67,7 @@ void main_loop()
   {
     if (gpio_handler->getInputState(PIN_D4) == input_device_state::UP_FLANK)
     {
-      p3->setup();
+      p2->setup();
     }
     if (gpio_handler->getInputState(PIN_D2) == input_device_state::UP_FLANK)
     {
@@ -122,9 +122,9 @@ void setup()
   p2 = new WifiPage((char *)"WiFi Networks", myMenu->_tft);
   p3 = new PageChooser((char *)"Main Menu", myMenu->_tft);
 
+  int i3 = myMenu->addPage(p3);
   int i1 = myMenu->addPage(p1);
   int i2 = myMenu->addPage(p2);
-  int i3 = myMenu->addPage(p3);
 
 
   p3->addOption(i1);

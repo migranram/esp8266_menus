@@ -19,7 +19,8 @@ TASKS DEFINITIONS
 
 List of tasks:
     1. Display task.
-    2. GPIO tasks
+    2. WIfi Scan.
+    3. GPIO check
 
 
 The void loop() is called at the beginning of each iteration by the scheduler so it could be used.
@@ -41,7 +42,7 @@ public:
     void loop()
     {
         myMenu->display();
-        delay(0);
+        delay(10);
     }
 } display_task;
 
