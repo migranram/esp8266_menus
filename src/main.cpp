@@ -1,32 +1,13 @@
+/* Miguel Granero Ramos 2023 
 
-/*************************************************************
-  This sketch implements a simple serial receive terminal
-  program for monitoring serial debug messages from another
-  board.
+BSD 3-Clause License
 
-  Connect GND to target board GND
-  Connect RX line to TX line of target board
-  Make sure the target and terminal have the same baud rate
-  and serial stettings!
-
-  The sketch works with the ILI9341 TFT 240x320 display and
-  the called up libraries.
-
-  The sketch uses the hardware scrolling feature of the
-  display. Modification of this sketch may lead to problems
-  unless the ILI9341 data sheet has been understood!
-
-  Updated by Bodmer 21/12/16 for TFT_eSPI library:
-  https://github.com/Bodmer/TFT_eSPI
-
-  BSD license applies, all text above must be included in any
-  redistribution
- *************************************************************/
-#include "menu.hpp"
-#include "wifi.h"
-#include "pages.hpp"
-#include "gpio.h"
+*/
 #include <iostream/iostream.h>
+
+#include "menu.hpp"
+#include "apps.hpp"
+#include "gpio.h"
 #include "tasks.hpp"
 
 #define MENU_NAME (char *)"test"
@@ -47,8 +28,12 @@ GPIO_handler *gpio_handler;
 unsigned long actual_millis;
 unsigned long last_millis;
 
+DisplayTask display_task;
+WifiScanTask wifiscan_task;
+GPIOScan gpioscan_task;
 
-void main_loop()
+
+static void main_loop()
 {
 
     // Check IO

@@ -34,17 +34,9 @@ private:
     Menu *myMenu;
 
 public:
-    void setMenu(Menu * menu)
-    {
-        if (menu != nullptr)
-            myMenu = menu;
-    }
-    void loop()
-    {
-        myMenu->display();
-        delay(10);
-    }
-} display_task;
+    void setMenu(Menu * menu);
+    void loop();
+};
 
 class WifiScanTask : public LeanTask
 {
@@ -52,18 +44,9 @@ private:
     String output;
 
 public:
-    void loop()
-    {
-        output = wifi_scan(false);
-        
-        delay(10e3);
-    }
-
-    String getScan()
-    {
-        return this->output;
-    }
-} wifiscan_task;
+    void loop();
+    String getScan();
+};
 
 class GPIOScan : public LeanTask
 {
@@ -71,17 +54,7 @@ private:
     GPIO_handler * handler;
 
 public:
-    void setHandler(GPIO_handler * gpio)
-    {
-        if(gpio != nullptr)
-            handler = gpio;
-    }
-    void loop()
-    {
-        
-        handler->checkButtons();
-        delay(50);
-    }
-} gpioscan_task;
-
+    void setHandler(GPIO_handler * gpio);
+    void loop();
+};
 #endif
